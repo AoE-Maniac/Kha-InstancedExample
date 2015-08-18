@@ -1,7 +1,7 @@
 // Input vertex data, different for all executions of this shader
 attribute vec3 pos;
 
-uniform vec3 off;
+attribute vec3 off;
 
 void kore() {
 	// Just output position

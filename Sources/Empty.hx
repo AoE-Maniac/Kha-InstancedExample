@@ -3,121 +3,129 @@ package;
 import kha.Game;
 import kha.Framebuffer;
 import kha.Color;
-import kha.graphics4.ConstantLocation;
+import kha.graphics4.ArrayBuffer;
+import kha.graphics4.AttributeLocation;
 import kha.Loader;
-import kha.graphics4.Program;
-import kha.graphics4.VertexStructure;
-import kha.graphics4.VertexBuffer;
-import kha.graphics4.IndexBuffer;
 import kha.graphics4.FragmentShader;
-import kha.graphics4.VertexShader;
-import kha.graphics4.VertexData;
+import kha.graphics4.IndexBuffer;
+import kha.graphics4.Program;
 import kha.graphics4.Usage;
+import kha.graphics4.VertexBuffer;
+import kha.graphics4.VertexData;
+import kha.graphics4.VertexShader;
+import kha.graphics4.VertexStructure;
 
 class Empty extends Game {
 
-	// An array of 3 vectors representing 3 vertices to form a triangle
+	// Simple triangle
 	static var vertices:Array<Float> = [
-	   -1.0, -1.0, 0.0, // Bottom-left
-	    0.0, -1.0, 0.0, // Bottom-right
-	   -0.5,  0.0, 0.0  // Top
+	   -1.0, -1.0, 0.0,
+	    0.0, -1.0, 0.0,
+	   -0.5,  0.0, 0.0
 	];
-	// Indices for our triangle, these will point to vertices above
 	static var indices:Array<Int> = [
-		0, // Bottom-left
-		1, // Bottom-right
-		2  // Top
+		0,
+		1,
+		2
 	];
-
-	var vertexBuffer:VertexBuffer;
-	var indexBuffer:IndexBuffer;
-	var program:Program;
-	var offID:ConstantLocation;
-	
+	// Offsets for tree instances
 	static var offsets:Array<Float> = [
 		0.0, 0.0, 0.0,
 		0.5, 1.0, 0.5,
 		1.0, 0.0, 0.0
 	];
 
+	var vertexBuffer:VertexBuffer;
+	var indexBuffer:IndexBuffer;
+	var offsetBuffer:ArrayBuffer;
+	var program:Program;
+	var offID:AttributeLocation;
+
 	public function new() {
 		super("Empty");
 	}
 
 	override public function init() {
-		// Define vertex structure
 		var structure = new VertexStructure();
         structure.add("pos", VertexData.Float3);
-        // Save length - we only store position in vertices for now
-        // Eventually there will be texture coords, normals,...
-        var structureLength = 3;
-
-        // Load shaders - these are located in 'Sources/Shaders' directory
-        // and Kha includes them automatically
+		
 		var fragmentShader = new FragmentShader(Loader.the.getShader("simple.frag"));
 		var vertexShader = new VertexShader(Loader.the.getShader("simple.vert"));
-	
-		// Link program with fragment and vertex shaders we loaded
+		
 		program = new Program();
 		program.setFragmentShader(fragmentShader);
 		program.setVertexShader(vertexShader);
 		program.link(structure);
-		
-		offID = program.getConstantLocation("off");
 
-		// Create vertex buffer
+		// Vertex buffer
 		vertexBuffer = new VertexBuffer(
-			Std.int(vertices.length / 3), // Vertex count - 3 floats per vertex
-			structure, // Vertex structure
-			Usage.StaticUsage // Vertex data will stay the same
+			Std.int(vertices.length / 3),
+			structure,
+			Usage.StaticUsage
 		);
 		
-		// Copy vertices to vertex buffer
 		var vbData = vertexBuffer.lock();
 		for (i in 0...vbData.length) {
 			vbData.set(i, vertices[i]);
 		}
 		vertexBuffer.unlock();
-
-		// Create index buffer
+		
+		// Index buffer
 		indexBuffer = new IndexBuffer(
-			indices.length, // 3 indices for our triangle
-			Usage.StaticUsage // Index data will stay the same
+			indices.length,
+			Usage.StaticUsage
 		);
 		
-		// Copy indices to index buffer
 		var iData = indexBuffer.lock();
 		for (i in 0...iData.length) {
 			iData[i] = indices[i];
 		}
 		indexBuffer.unlock();
+		
+		// Offset that is varied for each instance
+		offsetBuffer = new ArrayBuffer(
+			offsets.length,
+			3, // Vec3
+			Usage.StaticUsage
+		);
+		
+		var oData = offsetBuffer.lock();
+		for (i in 0...oData.length) {
+			oData[i] = offsets[i];
+		}
+		offsetBuffer.unlock();
+		
+		offID = program.getAttributeLocation("off"); // Attribute location since it is changed during shader calls
     }
 
 	override public function render(frame:Framebuffer) {
-		// A graphics object which lets us perform 3D operations
 		var g = frame.g4;
-
-		// Begin rendering
+		
         g.begin();
-
-        // Clear screen to black
 		g.clear(Color.Black);
-
-		// Bind shader program we want to draw with
 		g.setProgram(program);
 		
-		for (i in 0...3) {
-			g.setFloat3(offID, offsets[i * 3], offsets[i * 3 + 1], offsets[i * 3 + 2]);
-
-			// Bind data we want to draw
+		// Instanced rendering
+		if (g.instancedRenderingAvailable()) {
+			offsetBuffer.set(offID, 1); // Divisor is 1, i.e. offset changes after each instance is drawn
+			
 			g.setVertexBuffer(vertexBuffer);
 			g.setIndexBuffer(indexBuffer);
-
-			// Draw!
-			g.drawIndexedVertices();
+			g.drawIndexedVerticesInstanced(3);
 		}
-
-		// End rendering
+		else {
+			// TODO: You should define an alternative as there might be older systems that do not support this extension!
+		}
+		
+		// This is roughly the same as
+		//for (i in 0...3) {
+			//g.setFloat3(offID, offsets[i * 3], offsets[i * 3 + 1], offsets[i * 3 + 2]);
+			//g.setVertexBuffer(vertexBuffer);
+			//g.setIndexBuffer(indexBuffer);
+			
+			// g.drawIndexedVertices();
+		//}
+		
 		g.end();
     }
 }
