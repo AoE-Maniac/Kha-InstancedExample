@@ -95,7 +95,7 @@ class Empty extends Game {
 		
 		var oData = offsetBuffer.lock();
 		for (i in 0...oData.length) {
-			oData[i] = offsets[i];
+			oData.set(i, offsets[i]);
 		}
 		offsetBuffer.unlock();
 		
@@ -111,25 +111,25 @@ class Empty extends Game {
 		var m : Matrix4;
 		for (i in 0...3) {
 			m = Matrix4.rotationZ(Math.PI * 0.5);
-			mData[i * 16 + 0] = m._00;
-			mData[i * 16 + 1] = m._01;
-			mData[i * 16 + 2] = m._02;
-			mData[i * 16 + 3] = m._03;
+			mData.set(i * 16 + 0, m._00);
+			mData.set(i * 16 + 1, m._01);
+			mData.set(i * 16 + 2, m._02);
+			mData.set(i * 16 + 3, m._03);
 			
-			mData[i * 16 + 4] = m._10;
-			mData[i * 16 + 5] = m._11;
-			mData[i * 16 + 6] = m._12;
-			mData[i * 16 + 7] = m._13;
+			mData.set(i * 16 + 4, m._10);
+			mData.set(i * 16 + 5, m._11);
+			mData.set(i * 16 + 6, m._12);
+			mData.set(i * 16 + 7, m._13);
 			
-			mData[i * 16 + 8] = m._20;
-			mData[i * 16 + 9] = m._21;
-			mData[i * 16 + 10] = m._22;
-			mData[i * 16 + 11] = m._23;
+			mData.set(i * 16 + 8, m._20);
+			mData.set(i * 16 + 9, m._21);
+			mData.set(i * 16 + 10, m._22);
+			mData.set(i * 16 + 11, m._23);
 			
-			mData[i * 16 + 12] = m._30;
-			mData[i * 16 + 13] = m._31;
-			mData[i * 16 + 14] = m._32;
-			mData[i * 16 + 15] = m._33;
+			mData.set(i * 16 + 12, m._30);
+			mData.set(i * 16 + 13, m._31);
+			mData.set(i * 16 + 14, m._32);
+			mData.set(i * 16 + 15, m._33);
 		}
 		mBuffer.unlock();
 		
