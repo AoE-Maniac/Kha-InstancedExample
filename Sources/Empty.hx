@@ -39,10 +39,8 @@ class Empty extends Game {
 	var vertexBuffer:VertexBuffer;
 	var indexBuffer:IndexBuffer;
 	var offsetBuffer:ArrayBuffer;
-	var mBuffer:ArrayBuffer;
 	var program:Program;
 	var offID:AttributeLocation;
-	var mID:AttributeLocation;
 
 	public function new() {
 		super("Empty");
@@ -99,42 +97,7 @@ class Empty extends Game {
 		}
 		offsetBuffer.unlock();
 		
-		// Matrix for transformations
-		mBuffer = new ArrayBuffer(
-			3 * 4 * 4, // 3 * 4x4
-			4, // Vec4
-			4, // * 4 (there are no matrix primitives for glVertexAttribPointer)
-			Usage.StaticUsage
-		);
-		
-		var mData = mBuffer.lock();
-		var m : Matrix4;
-		for (i in 0...3) {
-			m = Matrix4.rotationZ(Math.PI * 0.5);
-			mData.set(i * 16 + 0, m._00);
-			mData.set(i * 16 + 1, m._01);
-			mData.set(i * 16 + 2, m._02);
-			mData.set(i * 16 + 3, m._03);
-			
-			mData.set(i * 16 + 4, m._10);
-			mData.set(i * 16 + 5, m._11);
-			mData.set(i * 16 + 6, m._12);
-			mData.set(i * 16 + 7, m._13);
-			
-			mData.set(i * 16 + 8, m._20);
-			mData.set(i * 16 + 9, m._21);
-			mData.set(i * 16 + 10, m._22);
-			mData.set(i * 16 + 11, m._23);
-			
-			mData.set(i * 16 + 12, m._30);
-			mData.set(i * 16 + 13, m._31);
-			mData.set(i * 16 + 14, m._32);
-			mData.set(i * 16 + 15, m._33);
-		}
-		mBuffer.unlock();
-		
 		offID = program.getAttributeLocation("off"); // Attribute location since it is changed during shader calls
-		mID = program.getAttributeLocation("m");
     }
 
 	override public function render(frame:Framebuffer) {
@@ -147,7 +110,6 @@ class Empty extends Game {
 		// Instanced rendering
 		if (g.instancedRenderingAvailable()) {
 			offsetBuffer.set(offID, 1); // Divisor is 1, i.e. offset changes after each instance is drawn
-			mBuffer.set(mID, 1); // Divisor is 1, i.e. offset changes after each instance is drawn
 			
 			g.setVertexBuffer(vertexBuffer);
 			g.setIndexBuffer(indexBuffer);
