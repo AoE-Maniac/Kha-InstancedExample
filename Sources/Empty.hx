@@ -42,8 +42,9 @@ class Empty extends Game {
 	}
 
 	override public function init() {
-		var structure = new VertexStructure();
-        structure.add("pos", VertexData.Float3);
+		var structures = new Array<VertexStructure>();
+		structures[0] = new VertexStructure();
+        structures[0].add("pos", VertexData.Float3);
 		
 		var fragmentShader = new FragmentShader(Loader.the.getShader("simple.frag"));
 		var vertexShader = new VertexShader(Loader.the.getShader("simple.vert"));
@@ -52,7 +53,7 @@ class Empty extends Game {
 		// Vertex buffer
 		vertexBuffers[0] = new VertexBuffer(
 			Std.int(vertices.length / 3),
-			structure,
+			structures[0],
 			Usage.StaticUsage
 		);
 		
@@ -74,13 +75,13 @@ class Empty extends Game {
 		}
 		indexBuffer.unlock();
 		
-		var instancedStructure = new VertexStructure();
-        instancedStructure.add("off", VertexData.Float3);
+		structures[1] = new VertexStructure();
+        structures[1].add("off", VertexData.Float3);
 		
 		// Offset that is varied for each instance
 		vertexBuffers[1] = new VertexBuffer(
 			Std.int(vertices.length / 3),
-			instancedStructure,
+			structures[1],
 			Usage.StaticUsage,
 			1 // instance data step rate
 		);
@@ -94,7 +95,7 @@ class Empty extends Game {
 		program = new Program();
 		program.setFragmentShader(fragmentShader);
 		program.setVertexShader(vertexShader);
-		program.link(structure, instancedStructure);
+		program.linkWithStructures(structures);
     }
 
 	override public function render(frame:Framebuffer) {
