@@ -3,8 +3,6 @@ package;
 import kha.Game;
 import kha.Framebuffer;
 import kha.Color;
-import kha.graphics4.ArrayBuffer;
-import kha.graphics4.AttributeLocation;
 import kha.Loader;
 import kha.graphics4.FragmentShader;
 import kha.graphics4.IndexBuffer;
@@ -17,61 +15,53 @@ import kha.graphics4.VertexStructure;
 import kha.math.Matrix4;
 
 class Empty extends Game {
-
 	// Simple triangle
-	static var vertices:Array<Float> = [
+	static var vertices: Array<Float> = [
 	   -1.0, -1.0, 0.0,
 	    0.0, -1.0, 0.0,
 	   -0.5,  0.0, 0.0
 	];
-	static var indices:Array<Int> = [
+	static var indices: Array<Int> = [
 		0,
 		1,
 		2
 	];
 	// Offsets for tree instances
-	static var offsets:Array<Float> = [
+	static var offsets: Array<Float> = [
 		0.0, 0.0, 0.0,
 		0.5, 1.0, 0.5,
 		1.0, 0.0, 0.0
 	];
 
-	var vertexBuffer:VertexBuffer;
-	var indexBuffer:IndexBuffer;
-	var offsetBuffer:ArrayBuffer;
-	var mBuffer:ArrayBuffer;
-	var program:Program;
-	var offID:AttributeLocation;
-	var mID:AttributeLocation;
+	var vertexBuffers: Array<VertexBuffer>;
+	var indexBuffer: IndexBuffer;
+	var program: Program;
 
 	public function new() {
 		super("Empty");
 	}
 
 	override public function init() {
-		var structure = new VertexStructure();
-        structure.add("pos", VertexData.Float3);
+		var structures = new Array<VertexStructure>();
+		structures[0] = new VertexStructure();
+        structures[0].add("pos", VertexData.Float3);
 		
 		var fragmentShader = new FragmentShader(Loader.the.getShader("simple.frag"));
 		var vertexShader = new VertexShader(Loader.the.getShader("simple.vert"));
 		
-		program = new Program();
-		program.setFragmentShader(fragmentShader);
-		program.setVertexShader(vertexShader);
-		program.link(structure);
-
+		vertexBuffers = new Array();
 		// Vertex buffer
-		vertexBuffer = new VertexBuffer(
+		vertexBuffers[0] = new VertexBuffer(
 			Std.int(vertices.length / 3),
-			structure,
+			structures[0],
 			Usage.StaticUsage
 		);
 		
-		var vbData = vertexBuffer.lock();
+		var vbData = vertexBuffers[0].lock();
 		for (i in 0...vbData.length) {
 			vbData.set(i, vertices[i]);
 		}
-		vertexBuffer.unlock();
+		vertexBuffers[0].unlock();
 		
 		// Index buffer
 		indexBuffer = new IndexBuffer(
@@ -85,56 +75,27 @@ class Empty extends Game {
 		}
 		indexBuffer.unlock();
 		
+		structures[1] = new VertexStructure();
+        structures[1].add("off", VertexData.Float3);
+		
 		// Offset that is varied for each instance
-		offsetBuffer = new ArrayBuffer(
-			offsets.length,
-			3, // Vec3
-			1,
-			Usage.StaticUsage
+		vertexBuffers[1] = new VertexBuffer(
+			Std.int(vertices.length / 3),
+			structures[1],
+			Usage.StaticUsage,
+			1 // instance data step rate
 		);
 		
-		var oData = offsetBuffer.lock();
+		var oData = vertexBuffers[1].lock();
 		for (i in 0...oData.length) {
 			oData.set(i, offsets[i]);
 		}
-		offsetBuffer.unlock();
+		vertexBuffers[1].unlock();
 		
-		// Matrix for transformations
-		mBuffer = new ArrayBuffer(
-			3 * 4 * 4, // 3 * 4x4
-			4, // Vec4
-			4, // * 4 (there are no matrix primitives for glVertexAttribPointer)
-			Usage.StaticUsage
-		);
-		
-		var mData = mBuffer.lock();
-		var m : Matrix4;
-		for (i in 0...3) {
-			m = Matrix4.rotationZ(Math.PI * 0.5);
-			mData.set(i * 16 + 0, m._00);
-			mData.set(i * 16 + 1, m._01);
-			mData.set(i * 16 + 2, m._02);
-			mData.set(i * 16 + 3, m._03);
-			
-			mData.set(i * 16 + 4, m._10);
-			mData.set(i * 16 + 5, m._11);
-			mData.set(i * 16 + 6, m._12);
-			mData.set(i * 16 + 7, m._13);
-			
-			mData.set(i * 16 + 8, m._20);
-			mData.set(i * 16 + 9, m._21);
-			mData.set(i * 16 + 10, m._22);
-			mData.set(i * 16 + 11, m._23);
-			
-			mData.set(i * 16 + 12, m._30);
-			mData.set(i * 16 + 13, m._31);
-			mData.set(i * 16 + 14, m._32);
-			mData.set(i * 16 + 15, m._33);
-		}
-		mBuffer.unlock();
-		
-		offID = program.getAttributeLocation("off"); // Attribute location since it is changed during shader calls
-		mID = program.getAttributeLocation("m");
+		program = new Program();
+		program.setFragmentShader(fragmentShader);
+		program.setVertexShader(vertexShader);
+		program.linkWithStructures(structures);
     }
 
 	override public function render(frame:Framebuffer) {
@@ -146,10 +107,7 @@ class Empty extends Game {
 		
 		// Instanced rendering
 		if (g.instancedRenderingAvailable()) {
-			offsetBuffer.set(offID, 1); // Divisor is 1, i.e. offset changes after each instance is drawn
-			mBuffer.set(mID, 1); // Divisor is 1, i.e. offset changes after each instance is drawn
-			
-			g.setVertexBuffer(vertexBuffer);
+			g.setVertexBuffers(vertexBuffers);
 			g.setIndexBuffer(indexBuffer);
 			g.drawIndexedVerticesInstanced(3);
 		}
