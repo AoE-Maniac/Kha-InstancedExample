@@ -1,12 +1,12 @@
 package;
 
-import kha.Game;
 import kha.Framebuffer;
 import kha.Color;
-import kha.Loader;
+import kha.Shaders;
+import kha.Assets;
 import kha.graphics4.FragmentShader;
 import kha.graphics4.IndexBuffer;
-import kha.graphics4.Program;
+import kha.graphics4.PipelineState;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.VertexData;
@@ -14,7 +14,7 @@ import kha.graphics4.VertexShader;
 import kha.graphics4.VertexStructure;
 import kha.math.Matrix4;
 
-class Empty extends Game {
+class Empty {
 	// Simple triangle
 	static var vertices: Array<Float> = [
 	   -1.0, -1.0, 0.0,
@@ -35,19 +35,12 @@ class Empty extends Game {
 
 	var vertexBuffers: Array<VertexBuffer>;
 	var indexBuffer: IndexBuffer;
-	var program: Program;
+	var pipeline: PipelineState;
 
 	public function new() {
-		super("Empty");
-	}
-
-	override public function init() {
 		var structures = new Array<VertexStructure>();
 		structures[0] = new VertexStructure();
         structures[0].add("pos", VertexData.Float3);
-		
-		var fragmentShader = new FragmentShader(Loader.the.getShader("simple.frag"));
-		var vertexShader = new VertexShader(Loader.the.getShader("simple.vert"));
 		
 		vertexBuffers = new Array();
 		// Vertex buffer
@@ -92,18 +85,19 @@ class Empty extends Game {
 		}
 		vertexBuffers[1].unlock();
 		
-		program = new Program();
-		program.setFragmentShader(fragmentShader);
-		program.setVertexShader(vertexShader);
-		program.linkWithStructures(structures);
+		pipeline = new PipelineState();
+		pipeline.fragmentShader = Shaders.simple_frag;
+		pipeline.vertexShader = Shaders.simple_vert;
+		pipeline.inputLayout = structures;
+		pipeline.compile();
     }
 
-	override public function render(frame:Framebuffer) {
+	public function render(frame:Framebuffer) {
 		var g = frame.g4;
 		
         g.begin();
 		g.clear(Color.Black);
-		g.setProgram(program);
+		g.setPipeline(pipeline);
 		
 		// Instanced rendering
 		if (g.instancedRenderingAvailable()) {
