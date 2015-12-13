@@ -85,6 +85,45 @@ class Empty {
 		}
 		vertexBuffers[1].unlock();
 		
+		structures[2] = new VertexStructure();
+		structures[2].add("m", VertexData.Float4x4);
+		
+		// Matrix for transformations		
+		vertexBuffers[2] = new VertexBuffer(
+			Std.int(vertices.length / 3),
+			structures[2],
+			//3 * 4 * 4, // 3 * 4x4
+			//4, // Vec4
+			//4, // * 4 (there are no matrix primitives for glVertexAttribPointer)
+			Usage.StaticUsage,
+			1
+		);
+		
+		var mData = vertexBuffers[2].lock();		
+		for (i in 0...3) {		
+			var m = Matrix4.rotationZ(Math.PI * 0.5);		
+			mData.set(i * 16 + 0, m._00);		
+			mData.set(i * 16 + 1, m._01);		
+			mData.set(i * 16 + 2, m._02);		
+			mData.set(i * 16 + 3, m._03);		
+					
+			mData.set(i * 16 + 4, m._10);		
+			mData.set(i * 16 + 5, m._11);		
+			mData.set(i * 16 + 6, m._12);		
+			mData.set(i * 16 + 7, m._13);		
+					
+			mData.set(i * 16 + 8, m._20);		
+			mData.set(i * 16 + 9, m._21);		
+			mData.set(i * 16 + 10, m._22);		
+			mData.set(i * 16 + 11, m._23);		
+					
+			mData.set(i * 16 + 12, m._30);		
+			mData.set(i * 16 + 13, m._31);		
+			mData.set(i * 16 + 14, m._32);		
+			mData.set(i * 16 + 15, m._33);		
+		}		
+		vertexBuffers[2].unlock();
+		
 		pipeline = new PipelineState();
 		pipeline.fragmentShader = Shaders.simple_frag;
 		pipeline.vertexShader = Shaders.simple_vert;
@@ -92,7 +131,7 @@ class Empty {
 		pipeline.compile();
     }
 
-	public function render(frame:Framebuffer) {
+	public function render(frame: Framebuffer) {
 		var g = frame.g4;
 		
         g.begin();
