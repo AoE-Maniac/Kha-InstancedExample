@@ -3,6 +3,7 @@ import kha.math.Matrix4;
 import kha.math.Vector3;
 import kha.Scheduler;
 
+// Data container for cylinder instances
 class Cylinder {
 	
 	private var yOffset : Float;
@@ -17,6 +18,7 @@ class Cylinder {
 	}
 	
 	public function update() {
-		yOffset = Math.sin(position.x * 2 + position.z + Scheduler.time() * 2) / 4;
+		// Update position over time
+		yOffset = Math.sin(position.x * 4 + position.z + Scheduler.time() * 2) / 4;
 	}
 }

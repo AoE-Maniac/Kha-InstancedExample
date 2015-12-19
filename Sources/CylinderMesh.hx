@@ -2,14 +2,17 @@ package;
 import kha.math.Matrix3;
 import kha.math.Vector2;
 
+// Generates index and vertex data for a cylinder
 class CylinderMesh {
 	
 	public var vertices: Array<Float>;
 	public var indices: Array<Int>;
 	
 	public function new(sections : Int) {
-		var r : Float = 0.5; // Radius
-		var h : Float = 1; // Height
+		// Radius
+		var r : Float = 0.5;
+		// Height
+		var h : Float = 1;
 		
 		vertices = new Array<Float>();
 		indices = new Array<Int>();
