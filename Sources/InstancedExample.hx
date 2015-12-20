@@ -22,8 +22,12 @@ import kha.math.Matrix4;
 
 class InstancedExample {
 	
+	// Generate 100x100 instances
 	static var instancesX = 100;
 	static var instancesZ = 100;
+	
+	// Each cylinder has 32 sides generated, change to control level of detail / polygon count
+	static var cylinderSections = 32; // Each section results in 4 polygons
 	
 	var cameraStart : Vector4;
 	var view : Matrix4;
@@ -56,7 +60,7 @@ class InstancedExample {
 		var structures = new Array<VertexStructure>();
 		
 		// Mesh structure, is shared by all instances
-		var mesh : CylinderMesh = new CylinderMesh(32);
+		var mesh : CylinderMesh = new CylinderMesh(cylinderSections);
 		structures[0] = new VertexStructure();
         structures[0].add("pos", VertexData.Float3);
 		
@@ -99,7 +103,6 @@ class InstancedExample {
 		
 		var oData = vertexBuffers[1].lock();
 		for (i in 0...instances.length) {
-			
 			oData.set(i * 3, 1);
 			oData.set(i * 3 + 1, 0.75 + Random.getIn(-100, 100) / 500);
 			oData.set(i * 3 + 2, 0);
