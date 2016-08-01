@@ -52,7 +52,7 @@ class InstancedExample {
 				instances.push(new Cylinder(pos));
 			}
 		}
-		cameraStart = new Vector4(0, 5, 10);
+		cameraStart = new Vector4(0, 5, 7.5);
 		
 		// Set up static projection matrix
 		projection = Matrix4.perspectiveProjection(45.0, 4.0 / 3.0, 0.1, 100.0);

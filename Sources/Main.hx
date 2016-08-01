@@ -6,7 +6,7 @@ import kha.System;
 class Main {
 
 	public static function main() {
-		System.init("InstancedExample", 640, 480, init);
+		System.init({title: "InstancedExample", width: 800, height: 600}, init);
 	}
 
 	static function init() {

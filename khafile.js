@@ -1,6 +1,6 @@
-var project = new Project('Empty');
+let project = new Project('Instanced Example');
 
 project.addSources('Sources');
 project.addShaders('Sources/Shaders/**');
 
-return project;
+resolve(project);
