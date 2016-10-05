@@ -1,4 +1,4 @@
 [submodule "Kha"]
 	path = Kha
-	url = ../Kha
+	url = https://github.com/KTXSoftware/Kha
 	branch = master
