@@ -6,10 +6,14 @@ import kha.Scheduler;
 // Data container for cylinder instances
 class Cylinder {
 	
+	private var amp : Float;
+	private var phase : Float;
 	private var yOffset : Float;
 	private var position : Vector3;
 	
-	public function new(position : Vector3) {
+	public function new(amp : Float, phase : Float, position : Vector3) {
+		this.amp = amp;
+		this.phase = phase;
 		this.position = position;
 	}
 	
@@ -19,6 +23,6 @@ class Cylinder {
 	
 	public function update() {
 		// Update position over time
-		yOffset = Math.sin(position.x * 4 + position.z + Scheduler.time() * 2) / 4;
+		yOffset = amp * Math.sin(position.x * 4 + position.z + Scheduler.time() * 2 * phase) / 4;
 	}
 }

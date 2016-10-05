@@ -8,15 +8,12 @@ import kha.math.Vector3;
 import kha.math.Vector4;
 import kha.Scheduler;
 import kha.Shaders;
-import kha.Assets;
 import kha.graphics4.CompareMode;
-import kha.graphics4.FragmentShader;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.PipelineState;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.VertexData;
-import kha.graphics4.VertexShader;
 import kha.graphics4.VertexStructure;
 import kha.math.Matrix4;
 
@@ -49,7 +46,7 @@ class InstancedExample {
 			for (z in 0...instancesZ) {
 				// Span x/z grid, center on 0/0
 				var pos = new Vector3(x - (instancesX - 1) / 2, 0, z - (instancesZ - 1) / 2);
-				instances.push(new Cylinder(pos));
+				instances.push(new Cylinder(1 + (Random.getIn(-25, 25) / 100), 1 + (Random.getIn(-25, 25) / 100), pos));
 			}
 		}
 		cameraStart = new Vector4(0, 5, 7.5);
