@@ -171,7 +171,7 @@ class InstancedExample {
 		vertexBuffers[2].unlock();
 		
         g.begin();
-		g.clear(Color.fromFloats(1, 0.75, 0));
+		g.clear(Color.fromFloats(1, 0.75, 0), 1.0);
 		g.setPipeline(pipeline);
 		
 		// Instanced rendering
